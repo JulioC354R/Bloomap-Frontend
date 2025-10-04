@@ -10,7 +10,9 @@
   },
   "dependencies": {
     "@types/leaflet": "^1.9.20",
+    "framer-motion": "^12.23.22",
     "leaflet": "^1.9.4",
+    "local-reverse-geocoder": "^0.16.7",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
