@@ -1,19 +1,26 @@
 "use client";
-import Map from "./MapComponent";
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import SplashScreen from "../SplashScreen/SplashScreen";
-const MapLoader = () => {
+
+// Carrega o MapComponent somente no cliente
+const Map = dynamic(() => import("./MapComponent"), { ssr: false });
+
+interface MapLoaderProps {
+  duration?: number;
+}
+
+const MapLoader = ({ duration = 2500 }: MapLoaderProps) => {
   const [loading, setLoading] = useState(true);
 
-  // Simula um tempo de carregamento (pode remover depois se quiser)
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 2500);
+    const timer = setTimeout(() => setLoading(false), duration);
     return () => clearTimeout(timer);
-  }, []);
+  }, [duration]);
 
   return (
     <>
-      {loading && <SplashScreen duration={2500} />}
+      {loading && <SplashScreen duration={duration} />}
       {!loading && <Map />}
     </>
   );
