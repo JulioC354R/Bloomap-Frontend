@@ -1,0 +1,14 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  overflow: hidden; /* Isso garante que nenhuma barra de rolagem apareça */
+}
+.leaflet-tile-pane {
+    -webkit-filter:-webkit-grayscale(100%);
+    filter: grayscale(100%);
+}
+
+.leaflet-container {
+    background: #f0f0f0 !important; /* Usamos !important para forçar a prioridade */
+}
