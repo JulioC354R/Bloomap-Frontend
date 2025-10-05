@@ -35,8 +35,6 @@ export async function bloomArea(
 ): Promise<BloomAreaResponse> {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/bloom/area?minLon=${minLon}&maxLon=${maxLon}&minLat=${minLat}&maxLat=${maxLat}`;
 
-  console.log("Requisição para URL:", url);
-
   const res = await fetch(url, {
     headers: {
       "User-Agent": "Bloomap/1.0 (julio@teste.com)",
