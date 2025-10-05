@@ -1,4 +1,3 @@
-// src/components/map/MapComponent.tsx
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
@@ -6,14 +5,11 @@ import { MapContainer, TileLayer, useMapEvents, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { reverseGeocode } from "@/utils/reverseGeocode";
 import { bloomArea } from "@/utils/backendConnection";
-
-// Importing your components
 import InfoModal from "@/components/panel/InfoModal";
 import BloomHistoryPanel from "@/components/panel/BloomHistoryPanel";
-import RadiusSlider from "./RadiusSlider"; // Make sure the path is correct
+import RadiusSlider from "./RadiusSlider";
 import type { Info as HistoryInfo, BloomSample } from "@/types/info";
 
-// --- TYPES (kept from the first version) ---
 type PanelInfo = {
   status: "high" | "medium" | "low";
   index: number;
@@ -25,8 +21,6 @@ type PanelInfo = {
   state?: string | null;
   city?: string | null;
 };
-
-// --- AUXILIARY COMPONENT FOR MAP EVENTS (UNIFIED) ---
 interface MapEventsHandlerProps {
   radius: number;
   circlePosition: { lat: number; lng: number } | null;
@@ -55,16 +49,14 @@ function MapEventsHandler({
   ) : null;
 }
 
-// --- MAIN COMPONENT (UNIFIED) ---
 export default function MapComponent() {
-  // Panel/History states
   const [openPanel, setOpenPanel] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [panelInfo, setPanelInfo] = useState<PanelInfo | null>(null);
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  // Circle/Radius states
-  const [radius, setRadius] = useState(5000); // 5km initial radius
+  const [radius, setRadius] = useState(5000);
   const [circlePosition, setCirclePosition] = useState<{
     lat: number;
     lng: number;
@@ -73,40 +65,32 @@ export default function MapComponent() {
 
   const center = useMemo<[number, number]>(() => [-8.05, -34.9], []);
 
-  // Function called when clicking on the map
   const onMapClick = useCallback(
     async (lat: number, lon: number) => {
-      // 1. Circle and Bounding Box logic
       setCirclePosition({ lat, lng: lon });
+      setPanelInfo(null); // limpa os dados atuais
+      setLoading(true); // ativa loading
+      setOpenPanel(true);
 
-      const earthRadius = 6378137; // meters
+      const earthRadius = 6378137;
       const latDelta = (radius / earthRadius) * (180 / Math.PI);
       const lngDelta =
         ((radius / earthRadius) * (180 / Math.PI)) /
         Math.cos((lat * Math.PI) / 180);
 
       const bboxArray = [
-        lon - lngDelta, // minLng
-        lat - latDelta, // minLat
-        lon + lngDelta, // maxLng
-        lat + latDelta, // maxLat
+        lon - lngDelta,
+        lat - latDelta,
+        lon + lngDelta,
+        lat + latDelta,
       ];
       setBbox(bboxArray);
 
-      // 2. Logic to open the panel and fetch data
-      setOpenPanel(true);
-
       try {
-        // 1️⃣ Faz a requisição para o backend com o bounding box
         const [minLon, minLat, maxLon, maxLat] = bboxArray;
         const bloomData = await bloomArea(minLon, maxLon, minLat, maxLat);
-
-        console.log("Dados recebidos do backend:", bloomData);
-
-        // 2️⃣ Faz a geocodificação reversa (cidade/estado/país)
         const place = await reverseGeocode(lat, lon);
 
-        // 3️⃣ Monta o objeto do painel com dados reais
         const base: PanelInfo = {
           status:
             bloomData.status === "high"
@@ -129,16 +113,16 @@ export default function MapComponent() {
           city: place?.city ?? bloomData.locationInfo.city ?? null,
         };
 
-        setPanelInfo(base);
+        setPanelInfo(base); // atualiza os dados
       } catch (err) {
         console.error("Erro ao buscar dados de florada:", err);
-        // (opcional) mostrar erro no painel
+      } finally {
+        setLoading(false); // termina loading
       }
     },
-    [radius] // Adds 'radius' as a dependency
+    [radius]
   );
 
-  // Function to open the history screen (unchanged)
   const handleOpenHistory = useCallback(() => {
     if (!panelInfo) return;
 
@@ -186,6 +170,7 @@ export default function MapComponent() {
         open={openPanel}
         onClose={() => setOpenPanel(false)}
         info={panelInfo}
+        loading={loading}
         initialCoords={
           bbox
             ? {
@@ -210,7 +195,6 @@ export default function MapComponent() {
   );
 }
 
-// --- AUXILIARY FUNCTIONS (kept from the first version) ---
 function toBloomSamples(values: number[]): BloomSample[] {
   const out: BloomSample[] = [];
   const now = new Date();

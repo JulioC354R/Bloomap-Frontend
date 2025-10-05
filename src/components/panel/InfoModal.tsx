@@ -32,6 +32,7 @@ type Props = {
   initialCoords?: Partial<Coords>;
   /** Called when the user wants to open the dedicated history screen */
   onOpenHistory?: () => void;
+  loading?: boolean;
 };
 
 export default function InfoModal({
@@ -40,6 +41,7 @@ export default function InfoModal({
   info,
   initialCoords,
   onOpenHistory,
+  loading = false, // ✅ prop loading
 }: Props) {
   const [coords, setCoords] = useState<Coords>({
     latMin: "",
@@ -48,7 +50,6 @@ export default function InfoModal({
     lonMax: "",
   });
 
-  // Fills the coordinate fields when the modal opens or when the initial coords change
   useEffect(() => {
     if (!open) return;
     setCoords((prev) => ({
@@ -63,6 +64,9 @@ export default function InfoModal({
     const { name, value } = e.target;
     setCoords((c) => ({ ...c, [name]: value }));
   };
+
+  const display = (val: string | number | null | undefined) =>
+    loading || val === null || val === undefined ? "-" : val;
 
   return (
     <AnimatePresence>
@@ -97,41 +101,41 @@ export default function InfoModal({
 
             {/* Body */}
             <div className="px-5 pb-5 space-y-5">
-              {!info ? (
-                <p style={{ color: "var(--sa-muted)" }}>Loading…</p>
-              ) : (
-                <>
-                  {/* Cards: status / index / variation / trend */}
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      ["Status", info.status],
-                      ["Index", info.index.toFixed(2)],
-                      ["Variation", info.variation],
-                      ["Trend", info.trend],
-                    ].map(([label, val]) => (
-                      <div
-                        key={label}
-                        className="rounded-xl p-3"
-                        style={{
-                          backgroundColor: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                        }}
-                      >
-                        <div style={{ color: "var(--sa-muted)" }}>{label}</div>
-                        <div className="font-semibold capitalize">
-                          {val as string}
-                        </div>
-                      </div>
-                    ))}
+              {/* Cards: status / index / variation / trend */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  ["Status", info?.status],
+                  [
+                    "Index",
+                    info?.index !== undefined ? info.index.toFixed(2) : null,
+                  ],
+                  ["Variation", info?.variation],
+                  ["Trend", info?.trend],
+                ].map(([label, val]) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-3"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    <div style={{ color: "var(--sa-muted)" }}>{label}</div>
+                    <div className="font-semibold capitalize">
+                      {display(val)}
+                    </div>
                   </div>
+                ))}
+              </div>
 
-                  {/* History (chips) + Coordinates */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* History (simple chips) */}
-                    <div>
-                      <div style={{ color: "var(--sa-muted)" }}>History</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {info.history.map((v, i) => (
+              {/* History + Coordinates */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* History */}
+                <div>
+                  <div style={{ color: "var(--sa-muted)" }}>History</div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {info?.history && !loading
+                      ? info.history.map((v, i) => (
                           <span
                             key={i}
                             className="rounded-full border px-2 py-0.5 text-xs"
@@ -139,100 +143,103 @@ export default function InfoModal({
                           >
                             {v.toFixed(2)}
                           </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Coordinates */}
-                    <div>
-                      <div
-                        style={{ color: "var(--sa-muted)" }}
-                        className="mb-2"
-                      >
-                        Coordinates
-                      </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        {[
-                          ["Minimum Latitude", "latMin"],
-                          ["Maximum Latitude", "latMax"],
-                          ["Minimum Longitude", "lonMin"],
-                          ["Maximum Longitude", "lonMax"],
-                        ].map(([label, name]) => (
-                          <div key={name} className="space-y-1">
-                            <label
-                              className="text-xs"
-                              style={{ color: "var(--sa-muted)" }}
+                        ))
+                      : Array(5)
+                          .fill("-")
+                          .map((v, i) => (
+                            <span
+                              key={i}
+                              className="rounded-full border px-2 py-0.5 text-xs text-center"
+                              style={{ borderColor: "rgba(255,255,255,0.2)" }}
                             >
-                              {label}
-                            </label>
-                            <input
-                              type="text"
-                              name={name}
-                              value={coords[name as keyof Coords]}
-                              onChange={handleChange}
-                              className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                              -
+                            </span>
+                          ))}
                   </div>
+                </div>
 
-                  {/* Insight */}
-                  {info.insight && (
-                    <div
-                      className="rounded-xl p-3"
-                      style={{
-                        backgroundColor: "rgba(234,254,7,0.1)",
-                        border: "1px solid rgba(234,254,7,0.35)",
-                      }}
-                    >
-                      <div
-                        className="text-sm"
-                        style={{ color: "var(--sa-neon-yellow)" }}
-                      >
-                        {info.insight}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Location */}
-                  <div className="grid grid-cols-3 gap-3 pt-2">
+                {/* Coordinates */}
+                <div>
+                  <div style={{ color: "var(--sa-muted)" }} className="mb-2">
+                    Coordinates
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
                     {[
-                      ["Country", info.country ?? "-"],
-                      ["State", info.state ?? "-"],
-                      ["City", info.city ?? "-"],
-                    ].map(([label, val]) => (
-                      <div
-                        key={label}
-                        className="rounded-xl p-3"
-                        style={{
-                          backgroundColor: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.08)",
-                        }}
-                      >
-                        <div
+                      ["Minimum Latitude", "latMin"],
+                      ["Maximum Latitude", "latMax"],
+                      ["Minimum Longitude", "lonMin"],
+                      ["Maximum Longitude", "lonMax"],
+                    ].map(([label, name]) => (
+                      <div key={name} className="space-y-1">
+                        <label
                           className="text-xs"
                           style={{ color: "var(--sa-muted)" }}
                         >
                           {label}
-                        </div>
-                        <div className="font-medium">{val as string}</div>
+                        </label>
+                        <input
+                          type="text"
+                          name={name}
+                          value={loading ? "-" : coords[name as keyof Coords]}
+                          onChange={handleChange}
+                          className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
+                        />
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
 
-                  {/* Button: open history panel */}
-                  <div className="pt-4">
-                    <button
-                      className="btn-accent w-full"
-                      onClick={onOpenHistory}
-                    >
-                      View Blooming History
-                    </button>
+              {/* Insight */}
+              {info?.insight && !loading && (
+                <div
+                  className="rounded-xl p-3"
+                  style={{
+                    backgroundColor: "rgba(234,254,7,0.1)",
+                    border: "1px solid rgba(234,254,7,0.35)",
+                  }}
+                >
+                  <div
+                    className="text-sm"
+                    style={{ color: "var(--sa-neon-yellow)" }}
+                  >
+                    {info.insight}
                   </div>
-                </>
+                </div>
               )}
+
+              {/* Location */}
+              <div className="grid grid-cols-3 gap-3 pt-2">
+                {[
+                  ["Country", info?.country],
+                  ["State", info?.state],
+                  ["City", info?.city],
+                ].map(([label, val]) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-3"
+                    style={{
+                      backgroundColor: "rgba(255,255,255,0.06)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    <div
+                      className="text-xs"
+                      style={{ color: "var(--sa-muted)" }}
+                    >
+                      {label}
+                    </div>
+                    <div className="font-medium">{display(val)}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Button */}
+              <div className="pt-4">
+                <button className="btn-accent w-full" onClick={onOpenHistory}>
+                  View Blooming History
+                </button>
+              </div>
             </div>
           </motion.div>
         </motion.div>

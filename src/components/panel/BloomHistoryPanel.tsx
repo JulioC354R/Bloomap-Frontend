@@ -2,7 +2,7 @@
 
 import React, { JSX, useMemo } from "react";
 // Make sure your Info type also uses the translated property names (history, index, etc.)
-import type { Info, BloomSample } from "@/types/info"; 
+import type { Info, BloomSample } from "@/types/info";
 
 interface BloomHistoryPanelProps {
   open: boolean;
@@ -15,14 +15,8 @@ export default function BloomHistoryPanel({
   onClose,
   info,
 }: BloomHistoryPanelProps): JSX.Element | null {
-  const firstDate = useMemo(
-    () => firstBloomDate(info.history),
-    [info.history]
-  );
-  const lastDate = useMemo(
-    () => lastBloomDate(info.history),
-    [info.history]
-  );
+  const firstDate = useMemo(() => firstBloomDate(info.history), [info.history]);
+  const lastDate = useMemo(() => lastBloomDate(info.history), [info.history]);
   const peaksCount = useMemo(
     () => info.history.filter((d) => d.is_peak).length,
     [info.history]
@@ -153,14 +147,15 @@ function Sparkline({
     if (!data.length) return "";
 
     const PAD = 10;
-    const x = (i: number): number =>
+    const x = (i: number) =>
       PAD + (i * (width - 2 * PAD)) / Math.max(1, data.length - 1);
-    const y = (v: number): number => height - PAD - v * (height - 2 * PAD);
+    const y = (v: number) => height - PAD - v * (height - 2 * PAD);
 
     return data
       .map((p, i) => `${i ? "L" : "M"} ${x(i)} ${y(clamp01(p.bloom))}`)
       .join(" ");
   }, [data, height, width]);
+
   return (
     <svg
       className="w-full rounded-lg"
@@ -168,6 +163,7 @@ function Sparkline({
       role="img"
       aria-label="Blooming time series"
     >
+      {/* Linha de referência */}
       <line
         x1={PAD}
         y1={y(0)}
@@ -176,6 +172,8 @@ function Sparkline({
         stroke="rgba(255,255,255,0.2)"
         strokeWidth={1}
       />
+
+      {/* Linha do gráfico */}
       <path
         d={d}
         fill="none"
@@ -183,20 +181,40 @@ function Sparkline({
         strokeOpacity={0.9}
         strokeWidth={1.8}
       />
-      {data.map(
-        (p, i) =>
-          p.is_peak && (
-            <circle
-              key={i}
-              cx={x(i)}
-              cy={y(clamp01(p.bloom))}
-              r={4}
-              fill="#ffcc00"
+
+      {/* Pontos e valores */}
+      {data.map((p, i) => {
+        const cx = x(i);
+        const cy = y(clamp01(p.bloom));
+        return (
+          <g key={i}>
+            {/* Picos */}
+            {p.is_peak && (
+              <circle
+                cx={cx}
+                cy={cy}
+                r={4}
+                fill="#ffcc00"
+                stroke="black"
+                strokeOpacity={0.35}
+              />
+            )}
+            {/* Valor do bloom acima do ponto */}
+            <text
+              x={cx}
+              y={cy - 6} // posiciona acima do ponto
+              textAnchor="middle"
+              fontSize={10}
+              fill="white"
               stroke="black"
-              strokeOpacity={0.35}
-            />
-          )
-      )}
+              strokeWidth={0.3}
+              paintOrder="stroke"
+            >
+              {(p.bloom * 100).toFixed(0)}%
+            </text>
+          </g>
+        );
+      })}
     </svg>
   );
 }
