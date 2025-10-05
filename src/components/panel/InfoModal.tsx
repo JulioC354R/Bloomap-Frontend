@@ -4,13 +4,13 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
-/** Tipos usados pelo painel principal */
+/** Types used by the main panel */
 type Info = {
-  status: "alta" | "media" | "baixa";
-  indice: number;
-  variacao: string;
-  tendencia: "subindo" | "estavel" | "caindo";
-  historico: number[];
+  status: "high" | "medium" | "low";
+  index: number;
+  variation: string;
+  trend: "rising" | "stable" | "falling";
+  history: number[];
   insight: string;
   country?: string | null;
   state?: string | null;
@@ -28,9 +28,9 @@ type Props = {
   open: boolean;
   onClose: () => void;
   info: Info | null;
-  /** Coordenadas iniciais vindas do clique no mapa */
+  /** Initial coordinates from the map click */
   initialCoords?: Partial<Coords>;
-  /** Chamada quando o usuário quiser abrir a tela dedicada de histórico */
+  /** Called when the user wants to open the dedicated history screen */
   onOpenHistory?: () => void;
 };
 
@@ -48,7 +48,7 @@ export default function InfoModal({
     lonMax: "",
   });
 
-  // Preenche os campos de coordenadas quando o modal abre ou quando mudam as coords iniciais
+  // Fills the coordinate fields when the modal opens or when the initial coords change
   useEffect(() => {
     if (!open) return;
     setCoords((prev) => ({
@@ -89,25 +89,25 @@ export default function InfoModal({
           >
             {/* Header */}
             <div className="flex items-center justify-between p-5">
-              <h3 className="text-2xl font-bold">Indicadores da área</h3>
+              <h3 className="text-2xl font-bold">Area Bloom Indicators</h3>
               <button onClick={onClose} className="btn-accent">
-                Fechar
+                Exit
               </button>
             </div>
 
             {/* Body */}
             <div className="px-5 pb-5 space-y-5">
               {!info ? (
-                <p style={{ color: "var(--sa-muted)" }}>Carregando…</p>
+                <p style={{ color: "var(--sa-muted)" }}>Loading…</p>
               ) : (
                 <>
-                  {/* Cards: status / índice / variação / tendência */}
+                  {/* Cards: status / index / variation / trend */}
                   <div className="grid grid-cols-2 gap-3">
                     {[
                       ["Status", info.status],
-                      ["Índice", info.indice.toFixed(2)],
-                      ["Variação", info.variacao],
-                      ["Tendência", info.tendencia],
+                      ["Index", info.index.toFixed(2)],
+                      ["Variation", info.variation],
+                      ["Trend", info.trend],
                     ].map(([label, val]) => (
                       <div
                         key={label}
@@ -125,13 +125,13 @@ export default function InfoModal({
                     ))}
                   </div>
 
-                  {/* Histórico (chips) + Coordenadas */}
+                  {/* History (chips) + Coordinates */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Histórico (chips simples) */}
+                    {/* History (simple chips) */}
                     <div>
-                      <div style={{ color: "var(--sa-muted)" }}>Histórico</div>
+                      <div style={{ color: "var(--sa-muted)" }}>History</div>
                       <div className="mt-2 flex flex-wrap gap-2">
-                        {info.historico.map((v, i) => (
+                        {info.history.map((v, i) => (
                           <span
                             key={i}
                             className="rounded-full border px-2 py-0.5 text-xs"
@@ -143,20 +143,20 @@ export default function InfoModal({
                       </div>
                     </div>
 
-                    {/* Coordenadas */}
+                    {/* Coordinates */}
                     <div>
                       <div
                         style={{ color: "var(--sa-muted)" }}
                         className="mb-2"
                       >
-                        Coordenadas
+                        Coordinates
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         {[
-                          ["Latitude mínima", "latMin"],
-                          ["Latitude máxima", "latMax"],
-                          ["Longitude mínima", "lonMin"],
-                          ["Longitude máxima", "lonMax"],
+                          ["Minimum Latitude", "latMin"],
+                          ["Maximum Latitude", "latMax"],
+                          ["Minimum Longitude", "lonMin"],
+                          ["Maximum Longitude", "lonMax"],
                         ].map(([label, name]) => (
                           <div key={name} className="space-y-1">
                             <label
@@ -196,12 +196,12 @@ export default function InfoModal({
                     </div>
                   )}
 
-                  {/* Localização */}
+                  {/* Location */}
                   <div className="grid grid-cols-3 gap-3 pt-2">
                     {[
-                      ["País", info.country ?? "-"],
-                      ["Estado", info.state ?? "-"],
-                      ["Cidade", info.city ?? "-"],
+                      ["Country", info.country ?? "-"],
+                      ["State", info.state ?? "-"],
+                      ["City", info.city ?? "-"],
                     ].map(([label, val]) => (
                       <div
                         key={label}
@@ -222,13 +222,13 @@ export default function InfoModal({
                     ))}
                   </div>
 
-                  {/* Botão: abrir tela de histórico (mesmo design do painel) */}
+                  {/* Button: open history panel */}
                   <div className="pt-4">
                     <button
                       className="btn-accent w-full"
                       onClick={onOpenHistory}
                     >
-                      Visualizar o histórico de floração
+                      View Blooming History
                     </button>
                   </div>
                 </>

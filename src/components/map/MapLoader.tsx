@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import SplashScreen from "../SplashScreen/SplashScreen";
 
-// Carrega o MapComponent somente no cliente
+// Loads the MapComponent only on the client-side
 const Map = dynamic(() => import("./MapComponent"), { ssr: false });
 
 interface MapLoaderProps {

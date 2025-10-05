@@ -1,8 +1,8 @@
-// src/components/panel/BloomHistoryPanel.tsx
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import type { Info, BloomSample } from "@/types/info";
+// Make sure your Info type also uses the translated property names (history, index, etc.)
+import type { Info, BloomSample } from "@/types/info"; 
 
 interface BloomHistoryPanelProps {
   open: boolean;
@@ -16,16 +16,16 @@ export default function BloomHistoryPanel({
   info,
 }: BloomHistoryPanelProps): JSX.Element | null {
   const firstDate = useMemo(
-    () => firstBloomDate(info.historico),
-    [info.historico]
+    () => firstBloomDate(info.history),
+    [info.history]
   );
   const lastDate = useMemo(
-    () => lastBloomDate(info.historico),
-    [info.historico]
+    () => lastBloomDate(info.history),
+    [info.history]
   );
   const peaksCount = useMemo(
-    () => info.historico.filter((d) => d.is_peak).length,
-    [info.historico]
+    () => info.history.filter((d) => d.is_peak).length,
+    [info.history]
   );
 
   if (!open) return null;
@@ -41,7 +41,7 @@ export default function BloomHistoryPanel({
       {/* Top bar */}
       <div className="max-w-6xl mx-auto flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Histórico de Floração</h1>
+          <h1 className="text-2xl font-bold">Blooming History</h1>
           <p className="text-sm" style={{ color: "var(--sa-muted)" }}>
             {info.city ? `${info.city}, ` : ""}
             {info.state ? `${info.state}, ` : ""}
@@ -49,21 +49,21 @@ export default function BloomHistoryPanel({
           </p>
         </div>
         <button onClick={onClose} className="btn-accent">
-          Fechar
+          Exit
         </button>
       </div>
 
-      {/* Conteúdo principal */}
+      {/* Main content */}
       <div className="max-w-6xl mx-auto grid grid-cols-1 gap-6">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <Card label="Status" value={labelStatus(info.status)} />
-          <Card label="Índice (bloom)" value={fmtPctOr1(info.indice)} />
-          <Card label="Variação" value={info.variacao.toString()} />
-          <Card label="Tendência" value={labelTendencia(info.tendencia)} />
+          <Card label="Index (bloom)" value={fmtPctOr1(info.index)} />
+          <Card label="Variation" value={info.variation.toString()} />
+          <Card label="Trend" value={labelTrend(info.trend)} />
         </div>
 
-        {/* Série temporal */}
+        {/* Time series */}
         <section
           className="rounded-2xl p-5"
           style={{
@@ -72,21 +72,21 @@ export default function BloomHistoryPanel({
           }}
         >
           <div className="mb-2 text-sm" style={{ color: "var(--sa-muted)" }}>
-            Série temporal (bloom)
+            Time Series (bloom)
           </div>
 
-          {info.historico.length > 1 ? (
-            <Sparkline data={info.historico} height={160} width={960} />
+          {info.history.length > 1 ? (
+            <Sparkline data={info.history} height={160} width={960} />
           ) : (
             <div className="text-xs" style={{ color: "var(--sa-muted)" }}>
-              Sem dados suficientes para o gráfico.
+              Not enough data for chart.
             </div>
           )}
 
           <div className="mt-4 grid grid-cols-3 gap-3">
-            <Card subtle label="Primeira floração" value={firstDate ?? "-"} />
-            <Card subtle label="Última floração" value={lastDate ?? "-"} />
-            <Card subtle label="Picos detectados" value={String(peaksCount)} />
+            <Card subtle label="First Bloom" value={firstDate ?? "-"} />
+            <Card subtle label="Last Bloom" value={lastDate ?? "-"} />
+            <Card subtle label="Detected Peaks" value={String(peaksCount)} />
           </div>
         </section>
 
@@ -110,7 +110,7 @@ export default function BloomHistoryPanel({
   );
 }
 
-/* ======= Subcomponentes ======= */
+/* ======= Subcomponents ======= */
 
 interface CardProps {
   label: string;
@@ -166,7 +166,7 @@ function Sparkline({
       className="w-full rounded-lg"
       viewBox={`0 0 ${width} ${height}`}
       role="img"
-      aria-label="Série temporal de floração"
+      aria-label="Blooming time series"
     >
       <line
         x1={PAD}
@@ -219,23 +219,23 @@ function lastBloomDate(series: BloomSample[]): string | null {
 
 function labelStatus(s: Info["status"]): string {
   switch (s) {
-    case "alta":
-      return "Alta";
-    case "media":
-      return "Média";
+    case "high":
+      return "High";
+    case "medium":
+      return "Medium";
     default:
-      return "Baixa";
+      return "Low";
   }
 }
 
-function labelTendencia(t: Info["tendencia"]): string {
+function labelTrend(t: Info["trend"]): string {
   switch (t) {
-    case "subindo":
-      return "Subindo";
-    case "estavel":
-      return "Estável";
+    case "rising":
+      return "Rising";
+    case "stable":
+      return "Stable";
     default:
-      return "Caindo";
+      return "Falling";
   }
 }
 

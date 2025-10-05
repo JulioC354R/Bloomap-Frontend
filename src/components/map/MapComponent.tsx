@@ -6,26 +6,26 @@ import { MapContainer, TileLayer, useMapEvents, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { reverseGeocode } from "@/utils/reverseGeocode";
 
-// Importando seus componentes
+// Importing your components
 import InfoModal from "@/components/panel/InfoModal";
 import BloomHistoryPanel from "@/components/panel/BloomHistoryPanel";
-import RadiusSlider from "./RadiusSlider"; // Certifique-se que o caminho está correto
+import RadiusSlider from "./RadiusSlider"; // Make sure the path is correct
 import type { Info as HistoryInfo, BloomSample } from "@/types/info";
 
-// --- TIPOS (mantidos da primeira versão) ---
+// --- TYPES (kept from the first version) ---
 type PanelInfo = {
-  status: "alta" | "media" | "baixa";
-  indice: number;
-  variacao: string;
-  tendencia: "subindo" | "estavel" | "caindo";
-  historico: number[];
+  status: "high" | "medium" | "low";
+  index: number;
+  variation: string;
+  trend: "rising" | "stable" | "falling";
+  history: number[];
   insight: string;
   country?: string | null;
   state?: string | null;
   city?: string | null;
 };
 
-// --- COMPONENTE AUXILIAR PARA EVENTOS NO MAPA (UNIFICADO) ---
+// --- AUXILIARY COMPONENT FOR MAP EVENTS (UNIFIED) ---
 interface MapEventsHandlerProps {
   radius: number;
   circlePosition: { lat: number; lng: number } | null;
@@ -54,16 +54,16 @@ function MapEventsHandler({
   ) : null;
 }
 
-// --- COMPONENTE PRINCIPAL (UNIFICADO) ---
+// --- MAIN COMPONENT (UNIFIED) ---
 export default function MapComponent() {
-  // Estados do Painel/Histórico
+  // Panel/History states
   const [openPanel, setOpenPanel] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [panelInfo, setPanelInfo] = useState<PanelInfo | null>(null);
   const [historyInfo, setHistoryInfo] = useState<HistoryInfo | null>(null);
 
-  // Estados do Círculo/Raio
-  const [radius, setRadius] = useState(5000); // 5km de raio inicial
+  // Circle/Radius states
+  const [radius, setRadius] = useState(5000); // 5km initial radius
   const [circlePosition, setCirclePosition] = useState<{
     lat: number;
     lng: number;
@@ -72,13 +72,13 @@ export default function MapComponent() {
 
   const center = useMemo<[number, number]>(() => [-8.05, -34.9], []);
 
-  // Função chamada ao clicar no mapa (unifica a lógica das duas versões)
+  // Function called when clicking on the map
   const onMapClick = useCallback(
     async (lat: number, lon: number) => {
-      // 1. Lógica do Círculo e Bounding Box
+      // 1. Circle and Bounding Box logic
       setCirclePosition({ lat, lng: lon });
 
-      const earthRadius = 6378137; // metros
+      const earthRadius = 6378137; // meters
       const latDelta = (radius / earthRadius) * (180 / Math.PI);
       const lngDelta =
         ((radius / earthRadius) * (180 / Math.PI)) /
@@ -92,20 +92,20 @@ export default function MapComponent() {
       ];
       setBbox(bboxArray);
 
-      // 2. Lógica de abrir o painel e buscar dados
+      // 2. Logic to open the panel and fetch data
       setOpenPanel(true);
 
       const place = await reverseGeocode(lat, lon);
 
       const base: PanelInfo = {
-        status: "media",
-        indice: 0.42,
-        variacao: "+5%",
-        tendencia: "subindo",
-        historico: [0.12, 0.18, 0.45, 0.78, 0.41, 0.2],
-        insight: "Pico recente de floração detectado em julho.",
-        // Preenchemos com os dados da biblioteca.
-        // O `?? null` garante que o valor seja nulo se não for encontrado.
+        status: "medium",
+        index: 0.42,
+        variation: "+5%",
+        trend: "rising",
+        history: [0.12, 0.18, 0.45, 0.78, 0.41, 0.2],
+        insight: "Recent bloom peak detected in July.",
+        // Filled with data from the library.
+        // `?? null` ensures that null is set if no value is found.
         country: place?.country ?? null,
         state: place?.state ?? null,
         city: place?.city ?? null,
@@ -113,14 +113,14 @@ export default function MapComponent() {
 
       setPanelInfo(base);
     },
-    [radius] // Adiciona 'radius' como dependência
+    [radius] // Adds 'radius' as a dependency
   );
 
-  // Função para abrir a tela de histórico (sem alterações)
+  // Function to open the history screen (unchanged)
   const handleOpenHistory = useCallback(() => {
     if (!panelInfo) return;
 
-    const samples: BloomSample[] = toBloomSamples(panelInfo.historico);
+    const samples: BloomSample[] = toBloomSamples(panelInfo.history);
     const maxIdx = samples.reduce(
       (best, cur, i, arr) => (cur.bloom > arr[best].bloom ? i : best),
       0
@@ -131,7 +131,7 @@ export default function MapComponent() {
 
     const infoForHistory: HistoryInfo = {
       ...panelInfo,
-      historico: samples,
+      history: samples,
     };
 
     setHistoryInfo(infoForHistory);
@@ -157,7 +157,7 @@ export default function MapComponent() {
         />
       </MapContainer>
 
-      {/* Componentes da UI sobre o mapa */}
+      {/* UI components over the map */}
       <RadiusSlider radius={radius} setRadius={setRadius} />
 
       <InfoModal
@@ -188,11 +188,11 @@ export default function MapComponent() {
   );
 }
 
-// --- FUNÇÕES AUXILIARES (mantidas da primeira versão) ---
+// --- AUXILIARY FUNCTIONS (kept from the first version) ---
 function toBloomSamples(values: number[]): BloomSample[] {
   const out: BloomSample[] = [];
   const now = new Date();
-  // N-1 semanas atrás
+  // N-1 weeks ago
   const start = new Date(
     now.getTime() - (values.length - 1) * 7 * 24 * 3600 * 1000
   );

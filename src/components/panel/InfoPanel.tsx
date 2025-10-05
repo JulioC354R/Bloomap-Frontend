@@ -3,11 +3,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 type Info = {
-  status: "alta" | "media" | "baixa";
-  indice: number;
-  variacao: string;
-  tendencia: "subindo" | "estavel" | "caindo";
-  historico: { date: string; bloom: number; is_peak?: boolean }[];
+  status: "high" | "medium" | "low";
+  index: number;
+  variation: string;
+  trend: "rising" | "stable" | "falling";
+  history: { date: string; bloom: number; is_peak?: boolean }[];
   insight: string;
   country?: string | null;
   state?: string | null;
@@ -25,7 +25,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   info: Info | null;
-  initialCoords?: Partial<Coords>; // recebe do clique
+  initialCoords?: Partial<Coords>; // received from the map click
 };
 
 const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
@@ -80,28 +80,28 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-5">
-              <h3 className="text-2xl font-bold">Indicadores da área</h3>
+              <h3 className="text-2xl font-bold">Area Flowering Indicators</h3>
               <button onClick={onClose} className="btn-accent">
-                Fechar
+                Exit
               </button>
             </div>
 
             <div className="px-5 pb-5 space-y-5">
-              {/* bloco de info existente */}
+              {/* existing info block */}
               {!info ? (
-                <p style={{ color: "var(--sa-muted)" }}>Carregando…</p>
+                <p style={{ color: "var(--sa-muted)" }}>Loading…</p>
               ) : (
                 <>
-                  {/* ... seus cards de status/índice/variação/tendência/histórico/insight ... */}
+                  {/* ... your status/index/variation/trend/history/insight cards ... */}
 
-                  {/* País/Estado/Cidade... (mantém como já tinha) */}
+                  {/* Country/State/City... (keep as it was) */}
                 </>
               )}
 
-              {/* 🔹 NOVO: Campos de coordenadas */}
+              {/* 🔹 NEW: Coordinate fields */}
               <div className="mt-2">
                 <div style={{ color: "var(--sa-muted)" }} className="mb-2">
-                  Coordenadas (lat/lon)
+                  Coordinates (lat/lon)
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
@@ -109,7 +109,7 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                       className="text-xs"
                       style={{ color: "var(--sa-muted)" }}
                     >
-                      Latitude mínima
+                      Minimum Latitude
                     </label>
                     <input
                       type="text"
@@ -125,7 +125,7 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                       className="text-xs"
                       style={{ color: "var(--sa-muted)" }}
                     >
-                      Latitude máxima
+                      Maximum Latitude
                     </label>
                     <input
                       type="text"
@@ -141,7 +141,7 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                       className="text-xs"
                       style={{ color: "var(--sa-muted)" }}
                     >
-                      Longitude mínima
+                      Minimum Longitude
                     </label>
                     <input
                       type="text"
@@ -157,7 +157,7 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                       className="text-xs"
                       style={{ color: "var(--sa-muted)" }}
                     >
-                      Longitude máxima
+                      Maximum Longitude
                     </label>
                     <input
                       type="text"
@@ -170,9 +170,9 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                   </div>
                 </div>
 
-                {/* Botões de ação (opcional) */}
+                {/* Action buttons (optional) */}
                 <div className="mt-3 flex gap-2">
-                  <button className="btn-accent">Aplicar</button>
+                  <button className="btn-accent">Apply</button>
                   <button
                     className="rounded-lg border border-white/20 px-3 py-2 text-sm"
                     onClick={() =>
@@ -184,7 +184,7 @@ const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
                       })
                     }
                   >
-                    Limpar
+                    Clear
                   </button>
                 </div>
               </div>

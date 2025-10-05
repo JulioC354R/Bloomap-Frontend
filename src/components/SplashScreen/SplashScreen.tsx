@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface SplashScreenProps {
-  duration?: number; // duração total da tela de splash em ms
+  duration?: number; // total duration of the splash screen in ms
 }
 
 const SplashScreen = ({ duration = 2500 }: SplashScreenProps) => {
@@ -26,7 +26,7 @@ const SplashScreen = ({ duration = 2500 }: SplashScreenProps) => {
           animate={{ opacity: 1, transition: { duration: 0.8 } }}
           exit={{ opacity: 0, scale: 1.05, transition: { duration: 1.2 } }}
         >
-          {/* Logo NASA */}
+          {/* NASA Logo */}
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{
@@ -46,7 +46,7 @@ const SplashScreen = ({ duration = 2500 }: SplashScreenProps) => {
             />
           </motion.div>
 
-          {/* Logo Software Masons */}
+          {/* Software Masons Logo */}
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{

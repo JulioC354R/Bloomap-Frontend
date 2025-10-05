@@ -1,4 +1,4 @@
-"use an client";
+"use client";
 
 interface RadiusSliderProps {
   radius: number;
@@ -19,7 +19,7 @@ const RadiusSlider = ({
 
   return (
     <>
-      {/* Componente principal */}
+      {/* Main component */}
       <div
         onMouseDownCapture={stopPropagation}
         onTouchStartCapture={stopPropagation}
@@ -37,11 +37,11 @@ const RadiusSlider = ({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.2)", // Sombra para dar destaque
+          boxShadow: "0 2px 10px rgba(0,0,0,0.2)", // Shadow to make it stand out
         }}
       >
         <label style={{ marginBottom: 5, color: "#000000", fontWeight: "bold" }}>
-          Raio: {radius} m
+          Radius: {radius} m
         </label>
         <input
           type="range"
@@ -50,55 +50,55 @@ const RadiusSlider = ({
           step={500}
           value={radius}
           onChange={(e) => setRadius(Number(e.target.value))}
-          // Adicionamos uma classe para poder estilizar com CSS
+          // We add a class to be able to style it with CSS
           className="radius-slider-input"
         />
       </div>
 
-      {/* Estilos CSS para o input range */}
+      {/* CSS styles for the range input */}
       <style jsx global>{`
         .radius-slider-input {
-          -webkit-appearance: none; /* Remove o estilo padrão do WebKit/Blink */
+          -webkit-appearance: none; /* Remove default WebKit/Blink styling */
           appearance: none;
           width: 150px;
           height: 8px;
-          background: #d3d3d3; /* Cor da barrinha (track) */
+          background: #d3d3d3; /* Color of the track */
           border-radius: 5px;
           outline: none;
           opacity: 0.9;
           transition: opacity 0.2s;
         }
 
-        /* Estilização do "thumb" (o botão deslizante) para Chrome, Safari, Opera, Edge */
+        /* Styling for the "thumb" (the sliding handle) for Chrome, Safari, Opera, Edge */
         .radius-slider-input::-webkit-slider-thumb {
           -webkit-appearance: none;
           appearance: none;
           width: 20px;
           height: 20px;
-          background: #0960e1; /* Sua cor principal */
+          background: #0960e1; /* Your primary color */
           border-radius: 50%;
           cursor: pointer;
           transition: background 0.2s;
         }
 
-        /* Estilização do "thumb" para Firefox */
+        /* Styling for the "thumb" for Firefox */
         .radius-slider-input::-moz-range-thumb {
           width: 20px;
           height: 20px;
-          background: #0960e1; /* Sua cor principal */
+          background: #0960e1; /* Your primary color */
           border-radius: 50%;
           cursor: pointer;
           border: none;
           transition: background 0.2s;
         }
         
-        /* Efeito HOVER para o "thumb" */
+        /* HOVER effect for the "thumb" */
         .radius-slider-input:hover::-webkit-slider-thumb {
-            background: #07173f; /* Sua cor de hover */
+            background: #07173f; /* Your hover color */
         }
 
         .radius-slider-input:hover::-moz-range-thumb {
-            background: #07173f; /* Sua cor de hover */
+            background: #07173f; /* Your hover color */
         }
       `}</style>
     </>
