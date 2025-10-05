@@ -5,6 +5,7 @@ import { useCallback, useMemo, useState } from "react";
 import { MapContainer, TileLayer, useMapEvents, Circle } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { reverseGeocode } from "@/utils/reverseGeocode";
+import { bloomArea } from "@/utils/backendConnection";
 
 // Importing your components
 import InfoModal from "@/components/panel/InfoModal";
@@ -95,23 +96,44 @@ export default function MapComponent() {
       // 2. Logic to open the panel and fetch data
       setOpenPanel(true);
 
-      const place = await reverseGeocode(lat, lon);
+      try {
+        // 1️⃣ Faz a requisição para o backend com o bounding box
+        const [minLon, minLat, maxLon, maxLat] = bboxArray;
+        const bloomData = await bloomArea(minLon, maxLon, minLat, maxLat);
 
-      const base: PanelInfo = {
-        status: "medium",
-        index: 0.42,
-        variation: "+5%",
-        trend: "rising",
-        history: [0.12, 0.18, 0.45, 0.78, 0.41, 0.2],
-        insight: "Recent bloom peak detected in July.",
-        // Filled with data from the library.
-        // `?? null` ensures that null is set if no value is found.
-        country: place?.country ?? null,
-        state: place?.state ?? null,
-        city: place?.city ?? null,
-      };
+        console.log("Dados recebidos do backend:", bloomData);
 
-      setPanelInfo(base);
+        // 2️⃣ Faz a geocodificação reversa (cidade/estado/país)
+        const place = await reverseGeocode(lat, lon);
+
+        // 3️⃣ Monta o objeto do painel com dados reais
+        const base: PanelInfo = {
+          status:
+            bloomData.status === "high"
+              ? "high"
+              : bloomData.status === "medium"
+              ? "medium"
+              : "low",
+          index: bloomData.indice,
+          variation: bloomData.variacao,
+          trend:
+            bloomData.tendencia === "falling"
+              ? "falling"
+              : bloomData.tendencia === "rising"
+              ? "rising"
+              : "stable",
+          history: bloomData.historico.map((h) => h.ndvi),
+          insight: bloomData.insight,
+          country: place?.country ?? bloomData.locationInfo.country ?? null,
+          state: place?.state ?? bloomData.locationInfo.state ?? null,
+          city: place?.city ?? bloomData.locationInfo.city ?? null,
+        };
+
+        setPanelInfo(base);
+      } catch (err) {
+        console.error("Erro ao buscar dados de florada:", err);
+        // (opcional) mostrar erro no painel
+      }
     },
     [radius] // Adds 'radius' as a dependency
   );
