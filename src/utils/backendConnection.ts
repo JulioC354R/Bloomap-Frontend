@@ -33,7 +33,8 @@ export async function bloomArea(
   minLat: number,
   maxLat: number
 ): Promise<BloomAreaResponse> {
-  const url = `http://localhost:5000/api/bloom/area?minLon=${minLon}&maxLon=${maxLon}&minLat=${minLat}&maxLat=${maxLat}`;
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/bloom/area?minLon=${minLon}&maxLon=${maxLon}&minLat=${minLat}&maxLat=${maxLat}`;
+
   console.log("Requisição para URL:", url);
 
   const res = await fetch(url, {
