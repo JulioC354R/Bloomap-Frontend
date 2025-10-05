@@ -5,45 +5,66 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 interface SplashScreenProps {
-  duration?: number; // duração da animação em ms
+  duration?: number; // duração total da tela de splash em ms
 }
 
-const SplashScreen = ({ duration }: SplashScreenProps) => {
+const SplashScreen = ({ duration = 2500 }: SplashScreenProps) => {
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShow(false); // some depois de x ms
-    }, duration);
-
+    const timer = setTimeout(() => setShow(false), duration);
     return () => clearTimeout(timer);
   }, [duration]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {show && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-white"
-          initial={{ opacity: 0, scale: 1 }}
-          animate={{ opacity: 1, scale: 1, transition: { duration: 1 } }}
-          exit={{ opacity: 0, scale: 1.1, transition: { duration: 1 } }}
+          key="splash"
+          className="fixed inset-0 z-[9999] flex items-center justify-center gap-8 bg-white"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: 0.8 } }}
+          exit={{ opacity: 0, scale: 1.05, transition: { duration: 1.2 } }}
         >
-          <Image
-            src="/NasaFullLogo.png"
-            sizes="100vw"
-            className="w-40 sm:w-56 md:w-72 h-auto"
-            alt="Splash"
-            width={300}
-            height={300}
-          />
-          <Image
-            src="/SoftwareMasons.png"
-            alt="Splash"
-            width={300}
-            height={300}
-            sizes="100vw"
-            className="w-40 sm:w-56 md:w-72 h-auto"
-          />
+          {/* Logo NASA */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { delay: 0.2, duration: 1 },
+            }}
+            exit={{ opacity: 0, y: -50, transition: { duration: 1 } }}
+          >
+            <Image
+              src="/NasaFullLogo.png"
+              alt="Nasa Logo"
+              width={300}
+              height={300}
+              sizes="100vw"
+              className="w-40 sm:w-56 md:w-72 h-auto"
+            />
+          </motion.div>
+
+          {/* Logo Software Masons */}
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              transition: { delay: 0.4, duration: 1 },
+            }}
+            exit={{ opacity: 0, y: -50, transition: { duration: 1 } }}
+          >
+            <Image
+              src="/SoftwareMasons.png"
+              alt="Software Masons Logo"
+              width={300}
+              height={300}
+              sizes="100vw"
+              className="w-40 sm:w-56 md:w-72 h-auto"
+            />
+          </motion.div>
         </motion.div>
       )}
     </AnimatePresence>

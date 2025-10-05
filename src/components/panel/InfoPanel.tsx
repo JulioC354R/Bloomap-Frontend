@@ -1,50 +1,198 @@
 "use client";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
-import { AnalysisData } from "../map/MapLoader"; 
-
-// 2. Definimos que o componente espera receber uma prop 'data'
-interface InfoPanelProps {
-  data: AnalysisData;
-}
-
-const panelStyles = {
-  position: 'fixed' as const,
-  top: '20px',
-  right: '20px',
-  width: '400px',
-  height: 'calc(100vh - 40px)',
-  backgroundColor: 'rgba(30, 41, 59, 0.9)',
-  backdropFilter: 'blur(10px)',
-  borderRadius: '12px',
-  padding: '24px',
-  color: 'white',
-  overflowY: 'auto' as const,
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
-  border: '1px solid rgba(255, 255, 255, 0.1)',
-  zIndex: 1000 
+type Info = {
+  status: "alta" | "media" | "baixa";
+  indice: number;
+  variacao: string;
+  tendencia: "subindo" | "estavel" | "caindo";
+  historico: { date: string; bloom: number; is_peak?: boolean }[];
+  insight: string;
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
 };
 
-const InfoPanel = ({ data }: InfoPanelProps) => { // 3. Recebemos 'data' como prop
+type Coords = {
+  latMin: string;
+  latMax: string;
+  lonMin: string;
+  lonMax: string;
+};
+
+type Props = {
+  open: boolean;
+  onClose: () => void;
+  info: Info | null;
+  initialCoords?: Partial<Coords>; // recebe do clique
+};
+
+const InfoPanel = ({ open, onClose, info, initialCoords }: Props) => {
+  const [coords, setCoords] = useState<Coords>({
+    latMin: "",
+    latMax: "",
+    lonMin: "",
+    lonMax: "",
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    setCoords((prev) => ({
+      latMin: initialCoords?.latMin ?? prev.latMin ?? "",
+      latMax: initialCoords?.latMax ?? prev.latMax ?? "",
+      lonMin: initialCoords?.lonMin ?? prev.lonMin ?? "",
+      lonMax: initialCoords?.lonMax ?? prev.lonMax ?? "",
+    }));
+  }, [
+    open,
+    initialCoords?.latMin,
+    initialCoords?.latMax,
+    initialCoords?.lonMin,
+    initialCoords?.lonMax,
+  ]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCoords((c) => ({ ...c, [e.target.name]: e.target.value }));
+  };
+
   return (
-    <div style={panelStyles}>
-      {/* 4. Usamos o nome do estado que veio nos dados */}
-      <h2 className="text-2xl font-bold mb-4">Análise Ecológica: {data.name}</h2>
-      
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-green-400 mb-2">Pulso Verde Anual</h3>
-        <p className="text-sm text-slate-300">Aqui entrará o gráfico de NDVI...</p>
-      </div>
-      
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-yellow-400 mb-2">Protagonistas da Floração</h3>
-        <p className="text-sm text-slate-300">Aqui entrará a galeria de plantas...</p>
-      </div>
-      
-      <div>
-        <h3 className="text-lg font-semibold text-blue-400 mb-2">Polinizadores da Região</h3>
-        <p className="text-sm text-slate-300">Aqui entrará o resumo de abelhas...</p>
-      </div>
-    </div>
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          className="fixed inset-0 z-[2000] grid place-items-center p-4"
+          style={{ backgroundColor: "rgba(7, 23, 63, 0.65)" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+        >
+          <motion.div
+            className="w-full max-w-xl rounded-2xl shadow-2xl"
+            style={{
+              background:
+                "linear-gradient(45deg, var(--sa-electric), var(--sa-deep-blue))",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between p-5">
+              <h3 className="text-2xl font-bold">Indicadores da área</h3>
+              <button onClick={onClose} className="btn-accent">
+                Fechar
+              </button>
+            </div>
+
+            <div className="px-5 pb-5 space-y-5">
+              {/* bloco de info existente */}
+              {!info ? (
+                <p style={{ color: "var(--sa-muted)" }}>Carregando…</p>
+              ) : (
+                <>
+                  {/* ... seus cards de status/índice/variação/tendência/histórico/insight ... */}
+
+                  {/* País/Estado/Cidade... (mantém como já tinha) */}
+                </>
+              )}
+
+              {/* 🔹 NOVO: Campos de coordenadas */}
+              <div className="mt-2">
+                <div style={{ color: "var(--sa-muted)" }} className="mb-2">
+                  Coordenadas (lat/lon)
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label
+                      className="text-xs"
+                      style={{ color: "var(--sa-muted)" }}
+                    >
+                      Latitude mínima
+                    </label>
+                    <input
+                      type="text"
+                      name="latMin"
+                      value={coords.latMin}
+                      onChange={handleChange}
+                      className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
+                      placeholder="-8.050000"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-xs"
+                      style={{ color: "var(--sa-muted)" }}
+                    >
+                      Latitude máxima
+                    </label>
+                    <input
+                      type="text"
+                      name="latMax"
+                      value={coords.latMax}
+                      onChange={handleChange}
+                      className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
+                      placeholder="-8.050000"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-xs"
+                      style={{ color: "var(--sa-muted)" }}
+                    >
+                      Longitude mínima
+                    </label>
+                    <input
+                      type="text"
+                      name="lonMin"
+                      value={coords.lonMin}
+                      onChange={handleChange}
+                      className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
+                      placeholder="-34.900000"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label
+                      className="text-xs"
+                      style={{ color: "var(--sa-muted)" }}
+                    >
+                      Longitude máxima
+                    </label>
+                    <input
+                      type="text"
+                      name="lonMax"
+                      value={coords.lonMax}
+                      onChange={handleChange}
+                      className="w-full rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-sm outline-none"
+                      placeholder="-34.900000"
+                    />
+                  </div>
+                </div>
+
+                {/* Botões de ação (opcional) */}
+                <div className="mt-3 flex gap-2">
+                  <button className="btn-accent">Aplicar</button>
+                  <button
+                    className="rounded-lg border border-white/20 px-3 py-2 text-sm"
+                    onClick={() =>
+                      setCoords({
+                        latMin: "",
+                        latMax: "",
+                        lonMin: "",
+                        lonMax: "",
+                      })
+                    }
+                  >
+                    Limpar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 
