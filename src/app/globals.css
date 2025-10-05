@@ -1,17 +1,27 @@
 @import "tailwindcss";
 
+/* =====================
+   🎨 VARIÁVEIS BASE
+===================== */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Paleta Space Apps */
+  --sa-deep-blue: #07173f; /* Deep Blue */
+  --sa-electric: #0042a6; /* Electric Blue */
+  --sa-neon-blue: #0960e1; /* Neon Blue */
+  --sa-neon-yellow: #eafe07; /* Neon Yellow (accent ONLY) */
+  --sa-rocket-red: #e43700;
+  --sa-martian-red: #8e1100;
+  --sa-white: #ffffff;
+
+  /* Texto/tons utilitários */
+  --sa-body: #e6eaf6; /* texto em fundo escuro */
+  --sa-muted: #aab7d4; /* textos menores / rótulos */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+/* Tema escuro */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -19,8 +29,78 @@
   }
 }
 
+/* =====================
+   ⚙️ TEMA GLOBAL
+===================== */
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* =====================
+   🧩 REGRAS GERAIS
+===================== */
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
+  height: 100%;
+  margin: 0;
+  padding: 0;
   font-family: Arial, Helvetica, sans-serif;
+  color: var(--sa-body);
+  /* 👇 Torna o fundo transparente para permitir animações de fade-in/out */
+  background: transparent !important;
+}
+
+/* =====================
+   🌌 GRADIENTE DE FUNDO
+===================== */
+.brand-bg {
+  min-height: 100vh;
+  background: linear-gradient(
+    45deg,
+    var(--sa-electric) 0%,
+    var(--sa-deep-blue) 100%
+  );
+}
+
+/* =====================
+   ✨ LINKS / ACCENT
+===================== */
+a,
+.accent {
+  color: var(--sa-neon-yellow);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* =====================
+   🔘 BOTÕES PADRÃO
+===================== */
+.btn-accent {
+  background: var(--sa-neon-yellow);
+  color: #121212;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 600;
+  transition: filter 0.2s ease-in-out;
+}
+
+.btn-accent:hover {
+  filter: brightness(0.95);
+}
+
+/* =====================
+   🗺️ LEAFLET FIX
+===================== */
+.leaflet-container {
+  z-index: 0;
+}
+
+.leaflet-control {
+  z-index: 1000;
 }
